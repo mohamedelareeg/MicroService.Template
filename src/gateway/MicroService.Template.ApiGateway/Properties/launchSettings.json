@@ -1,0 +1,24 @@
+{
+  "profiles": {
+    "ReverseProxy": {
+      "commandName": "Project",
+      "applicationUrl": "https://localhost:7015",
+      "launchBrowser": true,
+      "launchUrl": "https://localhost:7015/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_HTTPS_PORTS": "6002",
+        "ASPNETCORE_HTTP_PORTS": "6001"
+      },
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  }
+}

@@ -1,0 +1,12 @@
+services:
+  microservice.template.catalog.api:
+     environment:
+         - ASPNETCORE_ENVIRONMENT=Development
+         - ASPNETCORE_HTTP_PORTS=6880
+         - ASPNETCORE_HTTPS_PORTS=6881
+     ports:
+         - "6880:6880"
+         - "6881:6881"
+     volumes:
+          - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+          - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

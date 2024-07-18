@@ -7,7 +7,7 @@ using MicroService.Template.Identity.Api.Features.Emails.Commands.SendEmail;
 
 namespace MicroService.Template.Identity.Api.Controllers;
 [Authorize(Roles = "Administrator")]
-[Route("api/v1/email")]
+[Route("email")]
 public class EmailsController : AppControllerBase
 {
     public EmailsController(ISender sender)
@@ -15,7 +15,7 @@ public class EmailsController : AppControllerBase
     {
     }
 
-    [HttpPost("SendEmail")]
+    [HttpPost("sendEmail")]
     public async Task<IActionResult> SendEmail([FromQuery] SendEmailCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);

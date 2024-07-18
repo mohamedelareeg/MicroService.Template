@@ -1,5 +1,5 @@
 services:
-  microservice.template.catalog.api:
+  catalog.api:
      environment:
          - ASPNETCORE_ENVIRONMENT=Development
          - ASPNETCORE_HTTP_PORTS=6880
@@ -10,7 +10,7 @@ services:
      volumes:
           - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
           - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-  microservice.template.identity.api:
+  account.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=6181
@@ -18,6 +18,18 @@ services:
     ports:
       - "6181:6181"
       - "6182:6182"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=6101
+      - ASPNETCORE_HTTPS_PORTS=6102
+    ports:
+      - "6101:6101"
+      - "6102:6102"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

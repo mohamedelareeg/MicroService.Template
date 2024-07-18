@@ -1,14 +1,38 @@
 version: '3.4'
 
 services:
-  microservice.template.catalog.api:
-    image: ${DOCKER_REGISTRY-}microservicetemplatecatalogapi
+  apigateway:
+    container_name: apigateway
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: src
+      dockerfile: gateway/MicroService.Template.ApiGateway/Dockerfile
+    depends_on:
+      - catalog.api
+      - account.api
+    networks:
+      - backend
+
+  catalog.api:
+    container_name: catalog.api
+    image: ${DOCKER_REGISTRY-}catalogapi
     build:
       context: .
       dockerfile: src/services/MicroService.Template.Catalog.Api/Dockerfile
     depends_on:
       - postgres
       - redis
+    networks:
+      - backend
+
+  account.api:
+    container_name: account.api
+    image: ${DOCKER_REGISTRY-}accountapi
+    build:
+      context: .
+      dockerfile: src/identity/MicroService.Template.Identity.Api/Dockerfile
+    depends_on:
+      - sqlserver
     networks:
       - backend
 
@@ -23,6 +47,8 @@ services:
       - "5442:5432"
     networks:
       - backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -31,16 +57,8 @@ services:
       - "6379:6379"
     networks:
       - backend
-
-  microservice.template.identity.api:
-    image: ${DOCKER_REGISTRY-}microservicetemplateidentityapi
-    build:
-      context: .
-      dockerfile: src/identity/MicroService.Template.Identity.Api/Dockerfile
-    depends_on:
-      - sqlserver
-    networks:
-      - backend
+    volumes:
+      - redis_data:/data
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:latest
@@ -53,7 +71,14 @@ services:
       - "1433:1433"
     networks:
       - backend
+    volumes:
+      - sqlserver_data:/var/opt/mssql
 
 networks:
   backend:
     driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  sqlserver_data:

@@ -7,36 +7,39 @@ using MicroService.Template.Identity.Api.Features.Authentication.Commands.Login;
 using MicroService.Template.Identity.Api.Features.Authentication.Commands.Register;
 using MicroService.Template.Identity.Api.Features.Authentication.Commands.ResetPassword;
 using MicroService.Template.Identity.Api.Features.Authentication.Commands.SendResetPassword;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MicroService.Template.Identity.Api.Controllers;
-[Route("api/v1/auth")]
+[AllowAnonymous]
+[Route("auth")]
 public class AuthController : AppControllerBase
 {
     public AuthController(ISender sender)
         : base(sender)
     {
     }
-    [HttpPost("Login")]
+    [AllowAnonymous]
+    [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand request, CancellationToken cancellationToken)
     {
         Result<LoginDto> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterCommand request, CancellationToken cancellationToken)
     {
         Result<RegisterDto> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpPost("SendResetPasswordCode")]
+    [HttpPost("sendResetPasswordCode")]
     public async Task<IActionResult> SendResetPassword([FromQuery] SendResetPasswordCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
-    [HttpPost("ResetPassword")]
+    [HttpPost("resetPassword")]
     public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);

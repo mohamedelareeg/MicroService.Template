@@ -1,15 +1,43 @@
+using BuildingBlocks.Extentions;
+using MicroService.Template.ApiGateway.Swagger;
+using MicroService.Template.ApiGateway.Swagger.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
+builder.Services.AddTransient<GlobalExceptionHandlerMiddleWare>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+var configuration = builder.Configuration.GetSection("ReverseProxy");
+builder.Services
+    .AddReverseProxy()
+    .LoadFromConfig(configuration)
+    .AddTransformFactory<HeaderTransformFactory>()
+    .AddSwagger(configuration)
+    ;
+
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddRateLimiter(rateLimiterOptions =>
+//{
+//    rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
+//    {
+//        options.Window = TimeSpan.FromSeconds(10);
+//        options.PermitLimit = 5;
+//    });
+//});
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gateway", Version = "v1" });
+});
+
 
 var app = builder.Build();
 
@@ -17,21 +45,21 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Gateway V1");
-        c.RoutePrefix = string.Empty;
+        var config = app.Services.GetRequiredService<IOptionsMonitor<ReverseProxyDocumentFilterConfig>>().CurrentValue;
+        options.ConfigureSwaggerEndpoints(config);
     });
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseCors(policy =>
-{
-    policy.AllowAnyOrigin()
-          .AllowAnyMethod()
-          .AllowAnyHeader();
-});
+//app.UseCors(policy =>
+//{
+//    policy.AllowAnyOrigin()
+//          .AllowAnyMethod()
+//          .AllowAnyHeader();
+//});
 
 app.MapReverseProxy(proxyPipeline =>
 {
@@ -39,16 +67,22 @@ app.MapReverseProxy(proxyPipeline =>
     {
         await next();
 
-        if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
-        {
-            await next();
-        }
+        //if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+        //{
+        //    await next();
+        //}
     });
     proxyPipeline.UseSessionAffinity();
     proxyPipeline.UseLoadBalancing();
     proxyPipeline.UsePassiveHealthChecks();
+    //proxyPipeline.UseRateLimiter();
 });
 
-app.MapHealthChecks("/health");
+//app.UseRateLimiter();
+
+//app.MapReverseProxy();
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleWare>();
+app.UseHealthChecks("/health");
 
 app.Run();

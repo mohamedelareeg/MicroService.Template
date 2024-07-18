@@ -17,7 +17,7 @@ using MicroService.Template.Identity.Api.Features.Roles.Queries.GetAllRoles;
 using MicroService.Template.Identity.Api.Features.Roles.Queries.GetAllClaims;
 
 namespace MicroService.Template.Identity.Api.Controllers;
-[Route("api/v1/roles")]
+[Route("roles")]
 public class RolesController : AppControllerBase
 {
     public RolesController(ISender sender)
@@ -25,28 +25,28 @@ public class RolesController : AppControllerBase
     {
     }
 
-    [HttpPost("CreateRole")]
+    [HttpPost("createRole")]
     public async Task<IActionResult> CreateRole([FromBody] CreateRoleCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpPost("EditRole")]
+    [HttpPost("editRole")]
     public async Task<IActionResult> EditRole([FromBody] EditRoleCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpPost("DeleteRole")]
+    [HttpPost("deleteRole")]
     public async Task<IActionResult> DeleteRole([FromBody] DeleteRoleCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpGet("GetRoleClaims")]
+    [HttpGet("getRoleClaims")]
     public async Task<IActionResult> GetRoleClaims(string roleName, CancellationToken cancellationToken)
     {
         var query = new GetRoleClaimsQuery { RoleName = roleName };
@@ -54,27 +54,27 @@ public class RolesController : AppControllerBase
         return CustomResult(result);
     }
 
-    [HttpPost("AddClaimToRole")]
+    [HttpPost("addClaimToRole")]
     public async Task<IActionResult> AddClaimToRole([FromBody] AddClaimToRoleCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
-    [HttpPost("AssignRoleToUser")]
+    [HttpPost("assignRoleToUser")]
     public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUserCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpPost("AssignClaimToUser")]
+    [HttpPost("assignClaimToUser")]
     public async Task<IActionResult> AssignClaimToUser([FromBody] AssignClaimToUserCommand request, CancellationToken cancellationToken)
     {
         Result<bool> result = await Sender.Send(request, cancellationToken);
         return CustomResult(result);
     }
 
-    [HttpGet("GetUserRoles")]
+    [HttpGet("getUserRoles")]
     public async Task<IActionResult> GetUserRoles(string userId, CancellationToken cancellationToken)
     {
         var query = new GetUserRolesQuery { UserId = userId };
@@ -82,7 +82,7 @@ public class RolesController : AppControllerBase
         return CustomResult(result);
     }
 
-    [HttpGet("GetUserClaims")]
+    [HttpGet("getUserClaims")]
     public async Task<IActionResult> GetUserClaims(string userId, CancellationToken cancellationToken)
     {
         var query = new GetUserClaimsQuery { UserId = userId };
@@ -90,14 +90,14 @@ public class RolesController : AppControllerBase
         return CustomResult(result);
     }
     [Authorize(Roles = "Administrator")]
-    [HttpGet("GetAllRoles")]
+    [HttpGet("getAllRoles")]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
         var query = new GetAllRolesQuery();
         Result<CustomList<string>> result = await Sender.Send(query, cancellationToken);
         return CustomResult(result);
     }
-    [HttpGet("GetAllClaims")]
+    [HttpGet("getAllClaims")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetAllClaims(CancellationToken cancellationToken)
     {

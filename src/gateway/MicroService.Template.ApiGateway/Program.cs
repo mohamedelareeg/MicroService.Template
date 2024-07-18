@@ -1,50 +1,37 @@
-using MicroService.Template.ApiGateway;
-using MicroService.Template.ApiGateway.Identity;
-using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerDocumentation();
-builder.Services.AddCors();
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-    // MediatR Pipelines
-    // cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationPiplineBehavior<,>));
-    // cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
-});
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 builder.Services.AddHealthChecks();
-
-builder.Services.AddIdentityDependencies(builder.Configuration);
-// Configure authorization policy
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("authenticated", policy =>
-//        policy.RequireAuthenticatedUser());
-//});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Configure middleware
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwaggerDocumentation();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Gateway V1");
+        c.RoutePrefix = string.Empty;
+    });
 }
+
 app.UseHttpsRedirection();
 
-app.UseCors(builder =>
+app.UseCors(policy =>
 {
-    builder.AllowAnyOrigin()
-           .AllowAnyMethod()
-           .AllowAnyHeader();
+    policy.AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader();
 });
-app.UseAuthentication();
-
-app.UseAuthorization();
 
 app.MapReverseProxy(proxyPipeline =>
 {
@@ -54,7 +41,6 @@ app.MapReverseProxy(proxyPipeline =>
 
         if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
         {
-
             await next();
         }
     });
@@ -63,9 +49,6 @@ app.MapReverseProxy(proxyPipeline =>
     proxyPipeline.UsePassiveHealthChecks();
 });
 
-
-app.MapHealthChecks("health");
-
-app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

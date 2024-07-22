@@ -2,9 +2,9 @@
   "profiles": {
     "ReverseProxy": {
       "commandName": "Project",
-      "applicationUrl": "https://localhost:7015",
+      "applicationUrl": "https://localhost:6102",
       "launchBrowser": true,
-      "launchUrl": "https://localhost:7015/swagger",
+      "launchUrl": "https://localhost:6102/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -14,8 +14,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "6002",
-        "ASPNETCORE_HTTP_PORTS": "6001"
+        "ASPNETCORE_HTTPS_PORTS": "6102",
+        "ASPNETCORE_HTTP_PORTS": "6101"
       },
       "publishAllPorts": true,
       "useSSL": true

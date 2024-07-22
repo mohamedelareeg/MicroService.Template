@@ -10,8 +10,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleWare>();
 builder.Services.AddHttpContextAccessor();
 var configuration = builder.Configuration.GetSection("ReverseProxy");
@@ -24,14 +22,14 @@ builder.Services
 
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddRateLimiter(rateLimiterOptions =>
-//{
-//    rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
-//    {
-//        options.Window = TimeSpan.FromSeconds(10);
-//        options.PermitLimit = 5;
-//    });
-//});
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
+    {
+        options.Window = TimeSpan.FromSeconds(10);
+        options.PermitLimit = 5;
+    });
+});
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -41,7 +39,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -52,36 +49,23 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-//app.UseHttpsRedirection();
-
-//app.UseCors(policy =>
-//{
-//    policy.AllowAnyOrigin()
-//          .AllowAnyMethod()
-//          .AllowAnyHeader();
-//});
-
+app.UseRateLimiter();
 app.MapReverseProxy(proxyPipeline =>
 {
     proxyPipeline.Use(async (context, next) =>
     {
         await next();
 
-        //if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
-        //{
-        //    await next();
-        //}
+        if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+        {
+            await next();
+        }
     });
     proxyPipeline.UseSessionAffinity();
     proxyPipeline.UseLoadBalancing();
     proxyPipeline.UsePassiveHealthChecks();
-    //proxyPipeline.UseRateLimiter();
+    proxyPipeline.UseRateLimiter();
 });
-
-//app.UseRateLimiter();
-
-//app.MapReverseProxy();
-
 app.UseMiddleware<GlobalExceptionHandlerMiddleWare>();
 app.UseHealthChecks("/health");
 

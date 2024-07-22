@@ -1,0 +1,40 @@
+﻿@page "/product/{Id}"
+@using System.Net.Http.Json
+
+
+<h1 class="product-title">@product.Name</h1>
+
+<div class="container product-container">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="@product.ImageUrl" class="product-image" alt="@product.Name" />
+        </div>
+        <div class="col-md-6">
+            <h3 class="product-name">@product.Name</h3>
+            <p class="product-description">@product.Description</p>
+            <p class="product-price"><strong>@product.Price.ToString("C")</strong></p>
+            <button class="btn btn-primary">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Description { get; set; }
+    [Parameter] public decimal Price { get; set; }
+    [Parameter] public string ImageUrl { get; set; }
+    public Product product;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate fetching data
+        var allProducts = new List<Product>
+        {
+            new Product { Id = "1", Name = "Product 1", Description = "This is a great product.", Price = 29.99m, ImageUrl = "https://via.placeholder.com/150" },
+            new Product { Id = "2", Name = "Product 2", Description = "This product is even better.", Price = 49.99m, ImageUrl = "https://via.placeholder.com/150" },
+            new Product { Id = "3", Name = "Product 3", Description = "The best product you can buy.", Price = 79.99m, ImageUrl = "https://via.placeholder.com/150" }
+        };
+        product = allProducts.FirstOrDefault(p => p.Id == Id);
+    }
+}

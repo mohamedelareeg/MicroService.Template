@@ -1,0 +1,37 @@
+﻿@page "/"
+@using MicroService.Template.Web.Models
+
+<h1 class="home-title">Welcome to My eCommerce</h1>
+
+<div class="home-container">
+    <div class="row">
+        @foreach (var product in products)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card home-card">
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" />
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Description</p>
+                        <p class="card-text text-success"><strong>@product.Price.ToString("C")</strong></p>
+                        <a href="/product/@product.Id" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Description { get; set; }
+    [Parameter] public decimal Price { get; set; }
+    [Parameter] public string ImageUrl { get; set; }
+    private List<Product> products = new List<Product>
+    {
+        new Product { Id = "1", Name = "Product 1", Description = "This is a great product.", Price = 29.99m, ImageUrl = "https://via.placeholder.com/150" },
+        new Product { Id = "2", Name = "Product 2", Description = "This product is even better.", Price = 49.99m, ImageUrl = "https://via.placeholder.com/150" },
+        new Product { Id = "3", Name = "Product 3", Description = "The best product you can buy.", Price = 79.99m, ImageUrl = "https://via.placeholder.com/150" }
+    };
+}
